@@ -1,0 +1,330 @@
+/* ===== Variables et styles de base ===== */
+:root {
+  --gray-50: #fafafa;
+  --gray-100: #f5f5f5;
+  --gray-200: #e5e5e5;
+  --gray-300: #d4d4d4;
+  --gray-400: #a3a3a3;
+  --gray-500: #737373;
+  --gray-600: #525252;
+  --gray-700: #404040;
+  --gray-800: #262626;
+  --gray-900: #171717;
+  --gray-950: #0a0a0a;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+}
+
+/* ===== Composant Lyrics ===== */
+.lyrics-container {
+  padding: 1.25rem;
+  text-align: left;
+  background-color: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* En-tête */
+.lyrics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.lyrics-title {
+  margin: 0;
+  color: var(--gray-800);
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.lyrics-toggle-btn {
+  padding: 0.625rem 1.25rem;
+  background-color: var(--gray-600);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: background-color 0.15s;
+}
+
+.lyrics-toggle-btn.active {
+  background-color: var(--gray-700);
+}
+
+.lyrics-toggle-btn:hover {
+  background-color: var(--gray-800);
+}
+
+/* Mode synchronisation */
+.sync-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.mode-toggle {
+  display: flex;
+  gap: 0.625rem;
+  margin-bottom: 0.9375rem;
+}
+
+.mode-btn {
+  flex: 1;
+  padding: 0.625rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--gray-300);
+  background-color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--gray-700);
+}
+
+.mode-btn.active {
+  background-color: var(--gray-200);
+  border-color: var(--gray-500);
+  color: var(--gray-900);
+}
+
+.mode-btn:hover {
+  background-color: var(--gray-100);
+}
+
+/* Mode édition */
+.edit-mode {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.edit-label {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--gray-700);
+  font-size: 0.875rem;
+}
+
+.edit-textarea {
+  width: 100%;
+  flex: 1;
+  min-height: 200px;
+  padding: 0.9375rem;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--gray-200);
+  font-size: 1rem;
+  line-height: 1.6;
+  resize: none;
+  outline: none;
+  background-color: var(--gray-50);
+  color: var(--gray-900);
+  font-family: inherit;
+}
+
+.edit-textarea:focus {
+  border-color: var(--gray-500);
+  background-color: white;
+}
+
+/* Mode synchronisation - liste des paroles */
+.sync-list-container {
+  flex: 1;
+  max-height: 65vh;
+  overflow-y: auto;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  padding: 0.625rem;
+  background-color: var(--gray-50);
+}
+
+/* Ligne de parole */
+.lyric-line {
+  padding: 0.9375rem 0.75rem;
+  margin: 0.625rem 0;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  transition: all 0.2s;
+  background-color: white;
+}
+
+.lyric-line.passed {
+  opacity: 0.4;
+}
+
+.lyric-line.active {
+  background-color: var(--gray-100);
+  border: 2px solid var(--gray-600);
+}
+
+.lyric-line.next {
+  background-color: var(--gray-50);
+  border: 1px dashed var(--gray-400);
+}
+
+.lyric-line:first-child {
+  margin-top: 0;
+}
+
+.lyric-line:last-child {
+  margin-bottom: 0;
+}
+
+/* En-tête de ligne */
+.line-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.3125rem;
+}
+
+.line-status {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--gray-500);
+}
+
+.line-status.active {
+  color: var(--gray-700);
+}
+
+.line-status.captured {
+  color: var(--gray-600);
+}
+
+/* Contenu de la ligne */
+.line-content {
+  display: flex;
+  align-items: center;
+  gap: 0.9375rem;
+}
+
+.line-text {
+  flex: 1;
+  color: var(--gray-700);
+}
+
+.line-text.active {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--gray-900);
+}
+
+.line-text.next {
+  color: var(--gray-600);
+}
+
+.line-text.passed {
+  color: var(--gray-500);
+}
+
+/* Bouton de synchronisation */
+.sync-btn {
+  padding: 0.75rem 1.5625rem;
+  background-color: var(--gray-700);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.875rem;
+  box-shadow: var(--shadow-sm);
+  transition: background-color 0.15s;
+}
+
+.sync-btn:hover {
+  background-color: var(--gray-800);
+}
+
+.sync-btn:active {
+  background-color: var(--gray-900);
+}
+
+/* Footer */
+.lyrics-footer {
+  margin-top: auto;
+  padding-top: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--gray-200);
+}
+
+.progress-info {
+  font-size: 0.875rem;
+  color: var(--gray-600);
+}
+
+.progress-info b {
+  color: var(--gray-800);
+  font-weight: 600;
+}
+
+.download-btn {
+  padding: 0.625rem 1.25rem;
+  background-color: var(--gray-600);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: background-color 0.15s;
+}
+
+.download-btn:hover {
+  background-color: var(--gray-700);
+}
+
+/* Scrollbar personnalisée */
+.sync-list-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sync-list-container::-webkit-scrollbar-track {
+  background: var(--gray-100);
+  border-radius: 4px;
+}
+
+.sync-list-container::-webkit-scrollbar-thumb {
+  background: var(--gray-400);
+  border-radius: 4px;
+}
+
+.sync-list-container::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-500);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .lyrics-container {
+    padding: 1rem;
+  }
+  
+  .line-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.625rem;
+  }
+  
+  .sync-btn {
+    padding: 0.5rem 1rem;
+  }
+  
+  .line-text.active {
+    font-size: 1.125rem;
+  }
+}
