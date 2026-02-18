@@ -1,0 +1,31 @@
+{
+  "lyrics": {
+    "syncMode": "Synchronisation",
+    "viewMode": "Visualisation",
+    "finish": "Terminer",
+    "resume": "Reprendre",
+    "validateText": "VALIDER LE TEXTE",
+    "editText": "MODIFIER LE TEXTE",
+    "pasteLabel": "Collez vos paroles ici :",
+    "placeholder": "Une phrase par ligne...",
+    "clickHere": "CLIQUEZ ICI ➔",
+    "nextLine": "PROCHAINE LIGNE",
+    "line": "Ligne",
+    "syncBtn": "SYNC (Entrée)",
+    "progress": "Progression :",
+    "downloadLrc": "Télécharger .LRC"
+  },
+  "media": {
+    "urlPlaceholder": "URL du média...",
+    "play": "Play",
+    "exitFullscreen": "Quitter le plein écran",
+    "fullscreen": "Plein écran",
+    "firstLyric": "Première parole à venir...",
+    "waitingMedia": "Attente du média...",
+    "sourceInput": "URL du média..."
+  },
+  "app": {
+    "title": "Lyrics Sync",
+    "subtitle": "Outil professionnel de synchronisation de paroles"
+  }
+}

@@ -1,136 +1,66 @@
+# Video Lyrics Synchronizer
 
-# Online Bus Ticket Booking System (starter template)
-
-This is just a starter template containing Navbar, Footer, and Theme Switcher Section. And also installed the required resources like react icons, framer motion, and other basic requirements.
-
-
-
-## Installation
-
-Install with npm
-
-Clone the project
-
-```bash
-  git clone https://github.com/gtech-official08/bus-ticket-booking-setup.git
-```
-
-Remove `.git` an `README.md` if you want to push this repo on your github.com.
-
-Go to the project directory
-
-```bash
-  cd my-project
-```
-
-Install dependencies
-
-``` bash
-npm install
-```
-OR 
-
-```bash
-npm i
-```
-
-Start the server
-
-``` bash
-npm run dev
-```
-
-If you want to see live project on your mobile or other local machine with same wifi connection.
-
-```bash
-npm run dev -- --host
-```
-
-
-## Usages
-
-Don't forgot to insert this code on `tailwind.config.js`
-
-```javascript
-/** @type {import('tailwindcss').Config} */
-export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-  darkMode: "class",
-}
-```
-
-To Enable `Dark & Light Mode` in the system.
-
+A powerful React application designed to synchronize lyrics with video and audio files. This tool allows users to easily create synchronized `.lrc` files by playing media and clicking to mark timestamps for each line of lyrics.
 
 ## Features
 
-- Light/dark mode toggle
-- Live Seat booking
-- Live Price Calculate
-- Animation (framer motion)
-
+-   **Media Playback**: Supports local video/audio files and external URLs (including YouTube) via `react-player`.
+-   **Lyrics Synchronization**: Intuitive interface to paste lyrics and sync them line-by-line with the media playback.
+-   **Visualizer**: Real-time visualization of the synchronized lyrics.
+-   **Export**: Generate and download standard `.lrc` files for use in media players.
+-   **Interactive UI**: Keyboard shortcuts (Enter key) for quick synchronization and mouse support.
+-   **Responsive Design**: Built with TailwindCSS for a modern and responsive user interface.
 
 ## Tech Stack
 
-**Client:** ReactJs, ViteJs, TailwindCSS
+-   **Frontend**: React, Vite
+-   **Styling**: TailwindCSS
+-   **Animations**: Framer Motion
+-   **Icons**: React Icons
+-   **Media Player**: React Player
+-   **Routing**: React Router DOM
 
+## Installation
 
-## Screenshots
+1.  Clone the repository:
+    ```bash
+    git clone <repository-url>
+    ```
 
-![Screenshot_12-6-2024_113311_localhost](https://github.com/gtech-official08/bus-ticket-booking-setup/assets/127587520/b16296ca-cdf0-4ee0-860b-5db4ab440c72)
+2.  Navigate to the project directory:
+    ```bash
+    cd videolyrics
+    ```
 
+3.  Install dependencies:
+    ```bash
+    npm install
+    # or
+    pnpm install
+    # or
+    yarn install
+    ```
 
-![Screenshot_12-6-2024_113619_localhost](https://github.com/gtech-official08/bus-ticket-booking-setup/assets/127587520/69afb87e-6b6d-4734-b1fb-06c70af0deb7)
+4.  Start the development server:
+    ```bash
+    npm run dev
+    ```
 
+## Usage
 
-![Screenshot_12-6-2024_113547_localhost](https://github.com/gtech-official08/bus-ticket-booking-setup/assets/127587520/abebeab0-11a1-41b3-a984-4c67a07195af)
+1.  **Import Media**: Use the media input section to load a video or audio file from your computer, or paste a Youtube URL.
+2.  **Paste Lyrics**: Switch to "Edit Mode" in the lyrics section and paste your song lyrics.
+3.  **Synchronize**:
+    -   Play the media.
+    -   Click "Resume" (Reprendre) to start synchronization mode.
+    -   As the song plays, press `Enter` or click the "SYNC" button to mark the start time for the current line.
+    -   The next line will automatically become active.
+4.  **Download**: Once finished, click "Download .LRC" (Télécharger .LRC) to save your synchronized lyrics file.
 
+## Contributing
 
-![Screenshot_12-6-2024_113415_localhost](https://github.com/gtech-official08/bus-ticket-booking-setup/assets/127587520/b999fbc4-60dd-4cc5-8c3f-936548533c75)
+Contributions are welcome! Please feel free to submit a Pull Request.
 
+## License
 
-![Screenshot_12-6-2024_113520_localhost](https://github.com/gtech-official08/bus-ticket-booking-setup/assets/127587520/6c45cfa5-55cb-4d8d-8dc8-f44772fd17b4)
-
-
-![Screenshot_12-6-2024_113430_localhost](https://github.com/gtech-official08/bus-ticket-booking-setup/assets/127587520/d42269bf-2611-4995-9879-3b5954a89e25)
-
-
-
-## See Demo
-
-Live Demo:- 
-
-
-### Full Video Tutorial
-Video Link:- https://www.youtube.com/watch?v=1Guddi2MbOM 
-
-
-## Author
-
-- [@gtechofficial08](https://github.com/gtech-official08)
-
-
-## Acknowledgements
-
- - [Awesome Readme Templates Generator](https://readme.so/)
-
-
-## Support
-
-For support, email gtech.official08@gmail.com or DM us on Instagram.
-
-
-## Appendix
-
-Don't Forgot to Subscribe, Like, Comment, & Share.
-
-
-
-
+[MIT](https://choosealicense.com/licenses/mit/)
