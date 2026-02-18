@@ -400,6 +400,71 @@
   line-height: 1.4;
 }
 
+/* Édition inline du timing */
+.editable-time {
+  cursor: pointer;
+  border-bottom: 1px dashed var(--gray-400);
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.editable-time:hover {
+  color: #2563eb;
+  border-bottom-color: #2563eb;
+}
+
+.time-edit-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.time-edit-input {
+  width: 5.5rem;
+  padding: 0.15rem 0.4rem;
+  border: 1.5px solid #2563eb;
+  border-radius: var(--radius-sm);
+  font-family: monospace;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  outline: none;
+  background: white;
+}
+
+.time-edit-confirm {
+  padding: 0.15rem 0.4rem;
+  background-color: #10b981;
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1;
+  transition: background-color 0.15s;
+}
+
+.time-edit-confirm:hover {
+  background-color: #059669;
+}
+
+.time-edit-cancel {
+  padding: 0.15rem 0.4rem;
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1;
+  transition: background-color 0.15s;
+}
+
+.time-edit-cancel:hover {
+  background-color: #dc2626;
+}
+
 .no-captures {
   height: 100%;
   display: flex;

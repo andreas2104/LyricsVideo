@@ -7,6 +7,8 @@ const Lyrics = ({ currentTime, captures, setCaptures, isCaptioning, setIsCaption
   const [isEditMode, setIsEditMode] = useState(true);
   const [currentLineIndex, setCurrentLineIndex] = useState(0);
   const scrollRef = useRef(null);
+  const [editingTimeIdx, setEditingTimeIdx] = useState(null);
+  const [editingTimeValue, setEditingTimeValue] = useState('');
 
   const lyricsLines = useMemo(() => {
     return lyrics.split('\n').filter(line => line.trim() !== "");
@@ -67,6 +69,27 @@ const Lyrics = ({ currentTime, captures, setCaptures, isCaptioning, setIsCaption
     return `${mins}:${secs.padStart(5, '0')}`;
   };
 
+  const startEditTime = (idx, currentTime) => {
+    setEditingTimeIdx(idx);
+    setEditingTimeValue(currentTime);
+  };
+
+  const saveEditTime = (idx) => {
+    const parsed = parseFloat(editingTimeValue);
+    if (!isNaN(parsed) && parsed >= 0) {
+      setCaptures(prev => prev.map((cap, i) =>
+        i === idx ? { ...cap, time: parsed.toFixed(2) } : cap
+      ));
+    }
+    setEditingTimeIdx(null);
+    setEditingTimeValue('');
+  };
+
+  const cancelEditTime = () => {
+    setEditingTimeIdx(null);
+    setEditingTimeValue('');
+  };
+
   return (
     <div className="lyrics-container">
       
@@ -122,9 +145,30 @@ const Lyrics = ({ currentTime, captures, setCaptures, isCaptioning, setIsCaption
                       className={`lyric-line ${isActive ? 'active' : ''} ${isNext ? 'next' : ''} ${isPassed ? 'passed' : ''}`}
                     >
                       <div className="line-header">
-                        <span className={`line-status ${isActive ? 'active' : ''} ${capture ? 'captured' : ''}`}>
-                           {capture ? ` ${capture.time}s` : (isActive ? t('lyrics.clickHere') : (isNext ? t('lyrics.nextLine') : `${t('lyrics.line')} ${index + 1}`))}
-                        </span>
+                        {capture && editingTimeIdx === index ? (
+                          <span className="time-edit-inline">
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              value={editingTimeValue}
+                              onChange={e => setEditingTimeValue(e.target.value)}
+                              onKeyDown={e => { if (e.key === 'Enter') saveEditTime(index); if (e.key === 'Escape') cancelEditTime(); }}
+                              className="time-edit-input"
+                              autoFocus
+                            />
+                            <button onClick={() => saveEditTime(index)} className="time-edit-confirm">✓</button>
+                            <button onClick={cancelEditTime} className="time-edit-cancel">✗</button>
+                          </span>
+                        ) : (
+                          <span
+                            className={`line-status ${isActive ? 'active' : ''} ${capture ? 'captured editable-time' : ''}`}
+                            onClick={capture ? () => startEditTime(index, capture.time) : undefined}
+                            title={capture ? 'Cliquer pour modifier le timing' : undefined}
+                          >
+                            {capture ? `✏️ ${capture.time}s` : (isActive ? t('lyrics.clickHere') : (isNext ? t('lyrics.nextLine') : `${t('lyrics.line')} ${index + 1}`))}
+                          </span>
+                        )}
                       </div>
                       
                       <div className="line-content">
@@ -179,7 +223,30 @@ const Lyrics = ({ currentTime, captures, setCaptures, isCaptioning, setIsCaption
             <div className="captures-list">
               {captures.map((cap, idx) => (
                 <div key={idx} className="capture-item">
-                  <span className="cap-time">{cap.time}s</span>
+                  {editingTimeIdx === idx ? (
+                    <span className="time-edit-inline">
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={editingTimeValue}
+                        onChange={e => setEditingTimeValue(e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Enter') saveEditTime(idx); if (e.key === 'Escape') cancelEditTime(); }}
+                        className="time-edit-input"
+                        autoFocus
+                      />
+                      <button onClick={() => saveEditTime(idx)} className="time-edit-confirm">✓</button>
+                      <button onClick={cancelEditTime} className="time-edit-cancel">✗</button>
+                    </span>
+                  ) : (
+                    <span
+                      className="cap-time editable-time"
+                      onClick={() => startEditTime(idx, cap.time)}
+                      title="Cliquer pour modifier le timing"
+                    >
+                      ✏️ {cap.time}s
+                    </span>
+                  )}
                   <span className="cap-text">{cap.text}</span>
                 </div>
               ))}
