@@ -64,18 +64,31 @@ const Lyrics = ({ currentTime, captures, setCaptures, isCaptioning, setIsCaption
   }, [currentLineIndex, isEditMode, lyricsLines.length]);
 
   const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = (seconds % 60).toFixed(2);
+    const s = parseFloat(seconds);
+    const mins = Math.floor(s / 60);
+    const secs = (s % 60).toFixed(2);
     return `${mins}:${secs.padStart(5, '0')}`;
   };
 
-  const startEditTime = (idx, currentTime) => {
+  // Accepts "M:SS.ss" or plain seconds like "75.5"
+  const parseTimeToSeconds = (value) => {
+    const trimmed = value.trim();
+    if (trimmed.includes(':')) {
+      const parts = trimmed.split(':');
+      const mins = parseFloat(parts[0]) || 0;
+      const secs = parseFloat(parts[1]) || 0;
+      return mins * 60 + secs;
+    }
+    return parseFloat(trimmed);
+  };
+
+  const startEditTime = (idx, currentTimeSeconds) => {
     setEditingTimeIdx(idx);
-    setEditingTimeValue(currentTime);
+    setEditingTimeValue(formatTime(currentTimeSeconds));
   };
 
   const saveEditTime = (idx) => {
-    const parsed = parseFloat(editingTimeValue);
+    const parsed = parseTimeToSeconds(editingTimeValue);
     if (!isNaN(parsed) && parsed >= 0) {
       setCaptures(prev => prev.map((cap, i) =>
         i === idx ? { ...cap, time: parsed.toFixed(2) } : cap
@@ -148,9 +161,8 @@ const Lyrics = ({ currentTime, captures, setCaptures, isCaptioning, setIsCaption
                         {capture && editingTimeIdx === index ? (
                           <span className="time-edit-inline">
                             <input
-                              type="number"
-                              step="0.01"
-                              min="0"
+                              type="text"
+                              placeholder="M:SS.ss ou secondes"
                               value={editingTimeValue}
                               onChange={e => setEditingTimeValue(e.target.value)}
                               onKeyDown={e => { if (e.key === 'Enter') saveEditTime(index); if (e.key === 'Escape') cancelEditTime(); }}
@@ -166,7 +178,7 @@ const Lyrics = ({ currentTime, captures, setCaptures, isCaptioning, setIsCaption
                             onClick={capture ? () => startEditTime(index, capture.time) : undefined}
                             title={capture ? 'Cliquer pour modifier le timing' : undefined}
                           >
-                            {capture ? `✏️ ${capture.time}s` : (isActive ? t('lyrics.clickHere') : (isNext ? t('lyrics.nextLine') : `${t('lyrics.line')} ${index + 1}`))}
+                            {capture ? `✏️ ${formatTime(capture.time)}` : (isActive ? t('lyrics.clickHere') : (isNext ? t('lyrics.nextLine') : `${t('lyrics.line')} ${index + 1}`))}
                           </span>
                         )}
                       </div>
@@ -226,9 +238,8 @@ const Lyrics = ({ currentTime, captures, setCaptures, isCaptioning, setIsCaption
                   {editingTimeIdx === idx ? (
                     <span className="time-edit-inline">
                       <input
-                        type="number"
-                        step="0.01"
-                        min="0"
+                        type="text"
+                        placeholder="M:SS.ss ou secondes"
                         value={editingTimeValue}
                         onChange={e => setEditingTimeValue(e.target.value)}
                         onKeyDown={e => { if (e.key === 'Enter') saveEditTime(idx); if (e.key === 'Escape') cancelEditTime(); }}
@@ -244,7 +255,7 @@ const Lyrics = ({ currentTime, captures, setCaptures, isCaptioning, setIsCaption
                       onClick={() => startEditTime(idx, cap.time)}
                       title="Cliquer pour modifier le timing"
                     >
-                      ✏️ {cap.time}s
+                      ✏️ {formatTime(cap.time)}
                     </span>
                   )}
                   <span className="cap-text">{cap.text}</span>
