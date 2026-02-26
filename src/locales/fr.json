@@ -4,7 +4,7 @@
     "viewMode": "Visualisation",
     "finish": "Terminer",
     "resume": "Reprendre",
-    "validateText": "VALIDER LE TEXTE",
+    "validateText": "COMMENCER",
     "editText": "MODIFIER LE TEXTE",
     "pasteLabel": "Collez vos paroles ici :",
     "placeholder": "Une phrase par ligne...",
@@ -13,7 +13,10 @@
     "line": "Ligne",
     "syncBtn": "SYNC (Entrée)",
     "progress": "Progression :",
-    "downloadLrc": "Télécharger .LRC"
+    "downloadLrc": "Télécharger .LRC",
+    "exportVideo": "Exporter Vidéo MP4",
+    "noCaptures": "Aucune parole synchronisée pour le moment.",
+    "resetAll": "Tout réinitialiser"
   },
   "media": {
     "urlPlaceholder": "URL du média...",

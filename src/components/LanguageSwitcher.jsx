@@ -1,4 +1,3 @@
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdLanguage } from 'react-icons/md';
 
@@ -10,32 +9,28 @@ const LanguageSwitcher = () => {
   };
 
   return (
-    <div className="language-switcher" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-      <MdLanguage size={24} />
-      <button 
-        onClick={() => changeLanguage('fr')} 
-        style={{ 
+    <div className="language-switcher">
+      <MdLanguage size={20} className="lang-icon" />
+      <button
+        type="button"
+        onClick={() => changeLanguage('fr')}
+        className="lang-btn"
+        style={{
           fontWeight: i18n.language.startsWith('fr') ? 'bold' : 'normal',
           textDecoration: i18n.language.startsWith('fr') ? 'underline' : 'none',
-          background: 'none',
-          border: 'none',
-          color: 'inherit',
-          cursor: 'pointer'
         }}
       >
         FR
       </button>
-      <span>|</span>
-      <button 
+      <span className="lang-divider">|</span>
+      <button
+        type="button"
         onClick={() => changeLanguage('en')}
-        style={{ 
-            fontWeight: i18n.language.startsWith('en') ? 'bold' : 'normal',
-            textDecoration: i18n.language.startsWith('en') ? 'underline' : 'none',
-            background: 'none',
-            border: 'none',
-            color: 'inherit',
-            cursor: 'pointer'
-          }}
+        className="lang-btn"
+        style={{
+          fontWeight: i18n.language.startsWith('en') ? 'bold' : 'normal',
+          textDecoration: i18n.language.startsWith('en') ? 'underline' : 'none',
+        }}
       >
         EN
       </button>

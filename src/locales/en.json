@@ -4,7 +4,7 @@
     "viewMode": "Visualization",
     "finish": "Finish",
     "resume": "Resume",
-    "validateText": "VALIDATE TEXT",
+    "validateText": "START",
     "editText": "EDIT TEXT",
     "pasteLabel": "Paste your lyrics here:",
     "placeholder": "One line per phrase...",
@@ -13,7 +13,10 @@
     "line": "Line",
     "syncBtn": "SYNC (Enter)",
     "progress": "Progress:",
-    "downloadLrc": "Download .LRC"
+    "downloadLrc": "Download .LRC",
+    "exportVideo": "Export MP4 Video",
+    "noCaptures": "No synchronized lyrics yet.",
+    "resetAll": "Reset All"
   },
   "media": {
     "urlPlaceholder": "Media URL...",

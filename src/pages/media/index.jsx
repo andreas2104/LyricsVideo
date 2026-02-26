@@ -1,20 +1,19 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useTranslation } from 'react-i18next';
 import "./index.css";
 import { generateAudioBackground, isAudioFile } from "../../utils/visualizer";
 
-const Media = ({ onTimeUpdate, currentTime, captures = [], isCaptioning, mediaUrl, setMediaUrl, mediaType, setMediaType }) => {
-  const { t } = useTranslation();
+const Media = ({ onTimeUpdate, currentTime, captures = [], isCaptioning }) => {
+  const [mediaUrl, setMediaUrl] = useState("");
+  const [mediaType, setMediaType] = useState("video"); // "video" ou "audio"
+  const [audioBackground, setAudioBackground] = useState(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const urlInputRef = useRef(null);
   const videoRef = useRef(null);
   const audioRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
   const containerRef = useRef(null);
   const prevIsCaptioningRef = useRef(isCaptioning);
   const [currentLyricIndex, setCurrentLyricIndex] = useState(-1);
   const [nextLyricIndex, setNextLyricIndex] = useState(-1);
-  const [duration, setDuration] = useState(0);
-  const [audioBackground, setAudioBackground] = useState(null);
   const visualChangeInterval = useRef(null);
 
   // Gestion du plein écran
@@ -85,50 +84,24 @@ const Media = ({ onTimeUpdate, currentTime, captures = [], isCaptioning, mediaUr
     }
   };
 
-
-  // Gestion de la lecture
-  const togglePlay = () => {
-    const mediaElement = mediaType === 'audio' ? audioRef.current : videoRef.current;
-    if (mediaElement) {
-      if (mediaElement.paused) {
-        mediaElement.play().catch(err => console.error(err));
-        setIsPlaying(true);
+  const handleUrlSubmit = (e) => {
+    e.preventDefault(); 
+    const url = urlInputRef.current.value.trim();
+    if (url) {
+      setMediaUrl(url);
+      // Déterminer le type basé sur l'extension
+      if (isAudioFile(url)) {
+        setMediaType('audio');
       } else {
-        mediaElement.pause();
-        setIsPlaying(false);
+        setMediaType('video');
       }
     }
   };
 
-  // Saut dans le temps
-  const handleSeek = (amount) => {
-    const mediaElement = mediaType === 'audio' ? audioRef.current : videoRef.current;
-    if (mediaElement) {
-      mediaElement.currentTime = Math.max(0, Math.min(mediaElement.duration || Infinity, mediaElement.currentTime + amount));
-    }
-  };
-
-  const formatTime = (seconds) => {
-    if (!seconds || isNaN(seconds)) return "0:00";
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
   // Capture du temps au moment précis
   const handleTimeUpdate = (e) => {
-    setIsPlaying(!e.target.paused);
-    setDuration(e.target.duration || 0);
     if (onTimeUpdate) {
       onTimeUpdate(e.target.currentTime);
-    }
-  };
-
-  const handleProgressBarChange = (e) => {
-    const newTime = parseFloat(e.target.value);
-    const mediaElement = mediaType === 'audio' ? audioRef.current : videoRef.current;
-    if (mediaElement) {
-      mediaElement.currentTime = newTime;
     }
   };
 
@@ -235,33 +208,39 @@ const Media = ({ onTimeUpdate, currentTime, captures = [], isCaptioning, mediaUr
       {/* Configuration Sources - Masquer en plein écran */}
       {!isFullscreen && (
         <div className="source-section">
-          <div className="file-controls">
+          <input 
+            type="file" 
+            accept="video/*, audio/*" 
+            onChange={handleFileChange}
+            className="file-input"
+          />
+          <form onSubmit={handleUrlSubmit} className="url-form">
             <input 
-              type="file" 
-              accept="video/*, audio/*" 
-              onChange={handleFileChange}
-              className="file-input"
+              ref={urlInputRef} 
+              placeholder="URL du média..." 
+              className="url-input"
             />
-          </div>
+            <button type="submit" className="submit-btn">Play</button>
+          </form>
         </div>
       )}
 
       <div className="display-media">
         {mediaUrl ? (
-          <div className="player-outer-container" style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
+          <div style={{ position: 'relative', width: '100%', height: '100%' }}>
             {/* Bouton plein écran */}
             {mediaType === 'video' && (
               <button 
                 className="fullscreen-btn"
                 onClick={toggleFullscreen}
-                title={isFullscreen ? t('media.exitFullscreen') : t('media.fullscreen')}
+                title={isFullscreen ? "Quitter le plein écran" : "Plein écran"}
               >
                 {isFullscreen ? (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
                   </svg>
                 ) : (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
                   </svg>
                 )}
@@ -273,19 +252,19 @@ const Media = ({ onTimeUpdate, currentTime, captures = [], isCaptioning, mediaUr
                 key={mediaUrl} 
                 src={mediaUrl}
                 ref={videoRef}
-                onClick={togglePlay}
+                controls
                 autoPlay
                 className="video-player"
                 onTimeUpdate={handleTimeUpdate}
                 style={{
                   width: '100%',
-                  height: '100%',
-                  objectFit: 'contain',
-                  backgroundColor: 'black'
+                  height: isFullscreen ? '100vh' : 'auto',
+                  maxHeight: isFullscreen ? '100vh' : '600px',
+                  objectFit: 'contain'
                 }}
               />
             ) : (
-              <div className="audio-container" onClick={togglePlay}>
+              <div className="audio-container">
                 {audioBackground && (
                   <img 
                     src={audioBackground} 
@@ -297,60 +276,13 @@ const Media = ({ onTimeUpdate, currentTime, captures = [], isCaptioning, mediaUr
                   key={mediaUrl} 
                   src={mediaUrl}
                   ref={audioRef}
+                  controls
                   autoPlay
-                  className="audio-player-hidden"
+                  className="audio-player"
                   onTimeUpdate={handleTimeUpdate}
-                  style={{ display: 'none' }}
                 />
               </div>
             )}
-            
-            {/* Custom Control Bar Overlay */}
-            <div className="player-controls-overlay">
-              {/* Progress Bar / Scrubber */}
-              <div className="player-progress-container" onClick={(e) => e.stopPropagation()}>
-                <input 
-                  type="range"
-                  min="0"
-                  max={duration || 0}
-                  step="0.1"
-                  value={currentTime}
-                  onChange={handleProgressBarChange}
-                  className="player-progress-bar"
-                />
-              </div>
-
-              <div className="player-controls-bar">
-                <button onClick={(e) => {e.stopPropagation(); handleSeek(-5);}} className="player-btn" title="-5s">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M11 17l-5-5 5-5M18 17l-5-5 5-5" />
-                  </svg>
-                </button>
-                
-                <button onClick={(e) => {e.stopPropagation(); togglePlay();}} className="player-btn play-pause-btn" title={isPlaying ? "Pause" : "Play"}>
-                  {isPlaying ? (
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                      <rect x="6" y="4" width="4" height="16" />
-                      <rect x="14" y="4" width="4" height="16" />
-                    </svg>
-                  ) : (
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                  )}
-                </button>
-                
-                <button onClick={(e) => {e.stopPropagation(); handleSeek(5);}} className="player-btn" title="+5s">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M13 17l5-5-5-5M6 17l5-5-5-5" />
-                  </svg>
-                </button>
-
-                <div className="player-time-display">
-                  {formatTime(currentTime)} / {formatTime(duration)}
-                </div>
-              </div>
-            </div>
             
             {/* Overlay des Paroles en mode Karaoké */}
             {!isCaptioning && captures.length > 0 && currentLyricIndex >= 0 && (
@@ -385,13 +317,13 @@ const Media = ({ onTimeUpdate, currentTime, captures = [], isCaptioning, mediaUr
             {/* Message quand aucune parole n'est encore disponible */}
             {!isCaptioning && captures.length > 0 && currentLyricIndex === -1 && (
               <div className="waiting-message">
-                {t('media.firstLyric')}
+                Première parole à venir...
               </div>
             )}
           </div>
         ) : (
           <div className="media-placeholder">
-            {t('media.waitingMedia')}
+            Attente du média...
           </div>
         )}
       </div>
