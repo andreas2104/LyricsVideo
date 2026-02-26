@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import './index.css';
 
-const Lyrics = ({ currentTime, captures, setCaptures, isCaptioning, setIsCaptioning, lyrics, setLyrics, onResetAll }) => {
-  const { t } = useTranslation();
+const Lyrics = ({ currentTime, captures, setCaptures, isCaptioning, setIsCaptioning }) => {
+  const [lyrics, setLyrics] = useState("");
   const [isEditMode, setIsEditMode] = useState(true);
   const [currentLineIndex, setCurrentLineIndex] = useState(0);
   const scrollRef = useRef(null);
-  const [editingTimeIdx, setEditingTimeIdx] = useState(null);
-  const [editingTimeValue, setEditingTimeValue] = useState('');
 
   const lyricsLines = useMemo(() => {
     return lyrics.split('\n').filter(line => line.trim() !== "");
@@ -48,59 +45,27 @@ const Lyrics = ({ currentTime, captures, setCaptures, isCaptioning, setIsCaption
 
   useEffect(() => {
     if (!isEditMode && scrollRef.current) {
-      // Scroll to finish step when all lines are synced
-      if (currentLineIndex >= lyricsLines.length && lyricsLines.length > 0) {
-        const finishStep = scrollRef.current.querySelector('#finish-step');
-        if (finishStep) {
-          finishStep.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      } else {
-        const activeLine = scrollRef.current.querySelector(`#line-${currentLineIndex}`);
-        if (activeLine) {
-          activeLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+      const activeLine = scrollRef.current.querySelector(`#line-${currentLineIndex}`);
+      if (activeLine) {
+        activeLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }
-  }, [currentLineIndex, isEditMode, lyricsLines.length]);
+  }, [currentLineIndex, isEditMode]);
 
   const formatTime = (seconds) => {
-    const s = parseFloat(seconds);
-    const mins = Math.floor(s / 60);
-    const secs = (s % 60).toFixed(2);
+    const mins = Math.floor(seconds / 60);
+    const secs = (seconds % 60).toFixed(2);
     return `${mins}:${secs.padStart(5, '0')}`;
   };
 
-  // Accepts "M:SS.ss" or plain seconds like "75.5"
-  const parseTimeToSeconds = (value) => {
-    const trimmed = value.trim();
-    if (trimmed.includes(':')) {
-      const parts = trimmed.split(':');
-      const mins = parseFloat(parts[0]) || 0;
-      const secs = parseFloat(parts[1]) || 0;
-      return mins * 60 + secs;
-    }
-    return parseFloat(trimmed);
-  };
-
-  const startEditTime = (idx, currentTimeSeconds) => {
-    setEditingTimeIdx(idx);
-    setEditingTimeValue(formatTime(currentTimeSeconds));
-  };
-
-  const saveEditTime = (idx) => {
-    const parsed = parseTimeToSeconds(editingTimeValue);
-    if (!isNaN(parsed) && parsed >= 0) {
-      setCaptures(prev => prev.map((cap, i) =>
-        i === idx ? { ...cap, time: parsed.toFixed(2) } : cap
-      ));
-    }
-    setEditingTimeIdx(null);
-    setEditingTimeValue('');
-  };
-
-  const cancelEditTime = () => {
-    setEditingTimeIdx(null);
-    setEditingTimeValue('');
+  const generateLRC = () => {
+    const lrc = captures.map(c => `[${formatTime(parseFloat(c.time))}] ${c.text}`).join('\n');
+    const blob = new Blob([lrc], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'lyrics.lrc';
+    a.click();
   };
 
   return (
@@ -108,17 +73,17 @@ const Lyrics = ({ currentTime, captures, setCaptures, isCaptioning, setIsCaption
       
       <div className="lyrics-header">
         <h2 className="lyrics-title">
-          {isCaptioning ? t('lyrics.syncMode') : t('lyrics.viewMode')}
+          {isCaptioning ? ' Synchronisation ' : ' Visualisation '}
         </h2>
         <button 
            onClick={() => setIsCaptioning(!isCaptioning)}
-           className={`lyrics-toggle-btn ${isCaptioning ? 'active' : ''} ${isCaptioning && !isEditMode && currentLineIndex >= lyricsLines.length && lyricsLines.length > 0 ? 'finish-ready' : ''}`}
+           className={`lyrics-toggle-btn ${isCaptioning ? 'active' : ''}`}
         >
-          {isCaptioning ? (currentLineIndex >= lyricsLines.length && lyricsLines.length > 0 ? ' ' + (t('lyrics.finish') || 'Terminer') : t('lyrics.finish')) : t('lyrics.resume')}
+          {isCaptioning ? 'Terminer' : 'Reprendre'}
         </button>
       </div>
       
-      {isCaptioning ? (
+      {isCaptioning && (
         <div className="sync-container">
           <div className="mode-toggle">
              <button 
@@ -131,156 +96,69 @@ const Lyrics = ({ currentTime, captures, setCaptures, isCaptioning, setIsCaption
 
           {isEditMode ? (
             <div className="edit-mode">
-              <label className="edit-label">{t('lyrics.pasteLabel')}</label>
+              <label className="edit-label">Collez vos paroles ici :</label>
               <textarea
                 value={lyrics}
                 onChange={handleTextChange}
-                placeholder={t('lyrics.placeholder')}
+                placeholder="Une phrase par ligne..."
                 className="edit-textarea"
               />
             </div>
           ) : (
-            <div className="sync-mode-wrapper">
-              <div 
-                ref={scrollRef}
-                className="sync-list-container"
-              >
-                {lyricsLines.map((line, index) => {
-                  const isActive = index === currentLineIndex;
-                  const isNext = index === currentLineIndex + 1;
-                  const isPassed = index < currentLineIndex;
-                  const capture = captures[index];
+            <div 
+              ref={scrollRef}
+              className="sync-list-container"
+            >
+              {lyricsLines.map((line, index) => {
+                const isActive = index === currentLineIndex;
+                const isNext = index === currentLineIndex + 1;
+                const isPassed = index < currentLineIndex;
+                const capture = captures[index];
 
-                  return (
-                    <div 
-                      key={index}
-                      id={`line-${index}`}
-                      className={`lyric-line ${isActive ? 'active' : ''} ${isNext ? 'next' : ''} ${isPassed ? 'passed' : ''}`}
-                    >
-                      <div className="line-header">
-                        {capture && editingTimeIdx === index ? (
-                          <span className="time-edit-inline">
-                            <input
-                              type="text"
-                              placeholder="M:SS.ss ou secondes"
-                              value={editingTimeValue}
-                              onChange={e => setEditingTimeValue(e.target.value)}
-                              onKeyDown={e => { if (e.key === 'Enter') saveEditTime(index); if (e.key === 'Escape') cancelEditTime(); }}
-                              className="time-edit-input"
-                              autoFocus
-                            />
-                            <button onClick={() => saveEditTime(index)} className="time-edit-confirm">✓</button>
-                            <button onClick={cancelEditTime} className="time-edit-cancel">✗</button>
-                          </span>
-                        ) : (
-                          <span
-                            className={`line-status ${isActive ? 'active' : ''} ${capture ? 'captured editable-time' : ''}`}
-                            onClick={capture ? () => startEditTime(index, capture.time) : undefined}
-                            title={capture ? 'Cliquer pour modifier le timing' : undefined}
-                          >
-                            {capture ? `✏️ ${formatTime(capture.time)}` : (isActive ? t('lyrics.clickHere') : (isNext ? t('lyrics.nextLine') : `${t('lyrics.line')} ${index + 1}`))}
-                          </span>
-                        )}
-                      </div>
-                      
-                      <div className="line-content">
-                        <span className={`line-text ${isActive ? 'active' : ''} ${isNext ? 'next' : ''} ${isPassed ? 'passed' : ''}`}>
-                          {line}
-                        </span>
-
-                        {isActive && (
-                           <button 
-                             onClick={handleCapture}
-                             className="sync-btn"
-                           >
-                             {t('lyrics.syncBtn')}
-                           </button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Sticky Finish Button - always visible */}
-              <div className="sticky-finish-bar">
-                {currentLineIndex >= lyricsLines.length && lyricsLines.length > 0 ? (
-                  <button 
-                    onClick={() => setIsCaptioning(false)} 
-                    className="finish-sync-btn sticky-finish-btn"
+                return (
+                  <div 
+                    key={index}
+                    id={`line-${index}`}
+                    className={`lyric-line ${isActive ? 'active' : ''} ${isNext ? 'next' : ''} ${isPassed ? 'passed' : ''}`}
                   >
-                     {t('lyrics.finish') || 'Terminer la synchronisation'}
-                  </button>
-                ) : (
-                  <div className="sync-progress-bar">
-                    <div className="sync-progress-bar-label">
-                      {captures.length} / {lyricsLines.length} {t('lyrics.line') || 'lignes'} synchronisées
+                    <div className="line-header">
+                      <span className={`line-status ${isActive ? 'active' : ''} ${capture ? 'captured' : ''}`}>
+                         {capture ? `✅ ${capture.time}s` : (isActive ? 'CLIQUEZ ICI ➔' : (isNext ? 'PROCHAINE LIGNE' : `Ligne ${index + 1}`))}
+                      </span>
                     </div>
-                    <div className="sync-progress-track">
-                      <div 
-                        className="sync-progress-fill"
-                        style={{ width: lyricsLines.length > 0 ? `${(captures.length / lyricsLines.length) * 100}%` : '0%' }}
-                      />
+                    
+                    <div className="line-content">
+                      <span className={`line-text ${isActive ? 'active' : ''} ${isNext ? 'next' : ''} ${isPassed ? 'passed' : ''}`}>
+                        {line}
+                      </span>
+
+                      {isActive && (
+                         <button 
+                           onClick={handleCapture}
+                           className="sync-btn"
+                         >
+                           SYNC (Entrée)
+                         </button>
+                      )}
                     </div>
                   </div>
-                )}
-              </div>
+                );
+              })}
             </div>
-          )}
-        </div>
-      ) : (
-        /* Results / View Mode */
-        <div className="results-container">
-          {captures.length > 0 ? (
-            <div className="captures-list">
-              {captures.map((cap, idx) => (
-                <div key={idx} className="capture-item">
-                  {editingTimeIdx === idx ? (
-                    <span className="time-edit-inline">
-                      <input
-                        type="text"
-                        placeholder="M:SS.ss ou secondes"
-                        value={editingTimeValue}
-                        onChange={e => setEditingTimeValue(e.target.value)}
-                        onKeyDown={e => { if (e.key === 'Enter') saveEditTime(idx); if (e.key === 'Escape') cancelEditTime(); }}
-                        className="time-edit-input"
-                        autoFocus
-                      />
-                      <button onClick={() => saveEditTime(idx)} className="time-edit-confirm">✓</button>
-                      <button onClick={cancelEditTime} className="time-edit-cancel">✗</button>
-                    </span>
-                  ) : (
-                    <span
-                      className="cap-time editable-time"
-                      onClick={() => startEditTime(idx, cap.time)}
-                      title="Cliquer pour modifier le timing"
-                    >
-                      ✏️ {formatTime(cap.time)}
-                    </span>
-                  )}
-                  <span className="cap-text">{cap.text}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-             <div className="no-captures">
-                <p>{t('lyrics.noCaptures') || 'Aucune parole synchronisée pour le moment.'}</p>
-                <button onClick={() => setIsCaptioning(true)} className="start-sync-btn">
-                   {t('lyrics.resume')}
-                </button>
-             </div>
           )}
         </div>
       )}
 
-      {/* Footer */}
+      {/* Footer avec bouton LRC */}
       <div className="lyrics-footer">
         <div className="progress-info">
-          {t('lyrics.progress')} <b>{captures.length} / {lyricsLines.length}</b>
+          Progression: <b>{captures.length} / {lyricsLines.length}</b>
         </div>
-        <button onClick={onResetAll} className="reset-all-btn">
-           {t('lyrics.resetAll') || 'Tout réinitialiser'}
-        </button>
+        {captures.length > 0 && (
+          <button onClick={generateLRC} className="download-btn">
+            Télécharger .LRC
+          </button>
+        )}
       </div>
     </div>
   );
