@@ -7,7 +7,11 @@
  * @param {number} intensity - Intensité de l'effet (0-1)
  * @returns {string} Data URL de l'image générée
  */
-export const generateSoundWave = (width = 800, height = 400, intensity = 0.5) => {
+export const generateSoundWave = (
+  width = 800,
+  height = 400,
+  intensity = 0.5,
+) => {
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
@@ -23,22 +27,23 @@ export const generateSoundWave = (width = 800, height = 400, intensity = 0.5) =>
   // Dessiner des vagues sonores
   const waveCount = 8;
   const baseAmplitude = height * 0.15;
-  
+
   ctx.strokeStyle = '#a3a3a3';
   ctx.lineWidth = 2;
   ctx.globalAlpha = 0.3;
 
   for (let w = 0; w < waveCount; w++) {
     const amplitude = baseAmplitude * (1 + Math.sin(w) * 0.3) * intensity;
-    const frequency = 0.02 + (w * 0.005);
+    const frequency = 0.02 + w * 0.005;
     const phase = w * 0.5;
-    
+
     ctx.beginPath();
     for (let x = 0; x < width; x += 5) {
-      const y = height / 2 + 
-                Math.sin(x * frequency + phase) * amplitude +
-                Math.cos(x * frequency * 2) * amplitude * 0.3;
-      
+      const y =
+        height / 2 +
+        Math.sin(x * frequency + phase) * amplitude +
+        Math.cos(x * frequency * 2) * amplitude * 0.3;
+
       if (x === 0) {
         ctx.moveTo(x, y);
       } else {
@@ -69,7 +74,11 @@ export const generateSoundWave = (width = 800, height = 400, intensity = 0.5) =>
  * @param {number} intensity - Intensité de l'effet (0-1)
  * @returns {string} Data URL de l'image générée
  */
-export const generateSpectrum = (width = 800, height = 400, intensity = 0.5) => {
+export const generateSpectrum = (
+  width = 800,
+  height = 400,
+  intensity = 0.5,
+) => {
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
@@ -97,7 +106,7 @@ export const generateSpectrum = (width = 800, height = 400, intensity = 0.5) => 
 
     ctx.fillStyle = gradient;
     ctx.fillRect(x, y, barWidth, barHeight);
-    
+
     // Ajouter un reflet
     ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
     ctx.fillRect(x + 2, y + 2, barWidth - 4, 4);
@@ -113,7 +122,11 @@ export const generateSpectrum = (width = 800, height = 400, intensity = 0.5) => 
  * @param {number} intensity - Intensité de l'effet (0-1)
  * @returns {string} Data URL de l'image générée
  */
-export const generatePulseCircle = (width = 800, height = 400, intensity = 0.5) => {
+export const generatePulseCircle = (
+  width = 800,
+  height = 400,
+  intensity = 0.5,
+) => {
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
@@ -124,7 +137,14 @@ export const generatePulseCircle = (width = 800, height = 400, intensity = 0.5) 
   const maxRadius = Math.min(width, height) * 0.4;
 
   // Fond dégradé radial
-  const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, maxRadius * 2);
+  const gradient = ctx.createRadialGradient(
+    centerX,
+    centerY,
+    0,
+    centerX,
+    centerY,
+    maxRadius * 2,
+  );
   gradient.addColorStop(0, '#404040');
   gradient.addColorStop(0.5, '#262626');
   gradient.addColorStop(1, '#171717');
@@ -135,7 +155,7 @@ export const generatePulseCircle = (width = 800, height = 400, intensity = 0.5) 
   for (let i = 0; i < 10; i++) {
     const radius = maxRadius * (i / 10) * (0.8 + intensity * 0.4);
     const alpha = 0.1 + (i / 10) * 0.2;
-    
+
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
     ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
@@ -150,7 +170,7 @@ export const generatePulseCircle = (width = 800, height = 400, intensity = 0.5) 
     const distance = maxRadius * (0.8 + Math.sin(angle * 3) * 0.2);
     const x = centerX + Math.cos(angle) * distance;
     const y = centerY + Math.sin(angle) * distance;
-    
+
     ctx.beginPath();
     ctx.arc(x, y, 3 + Math.sin(angle * 5) * 2, 0, Math.PI * 2);
     ctx.fill();
@@ -179,7 +199,7 @@ export const isAudioFile = (url) => {
 export const generateAudioBackground = (type = 'random', intensity = 0.5) => {
   const types = ['wave', 'spectrum', 'pulse'];
   let selectedType = type;
-  
+
   if (type === 'random') {
     selectedType = types[Math.floor(Math.random() * types.length)];
   }
