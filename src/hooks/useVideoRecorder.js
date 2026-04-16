@@ -8,6 +8,7 @@ export const useVideoRecorder = (videoRef, audioRef) => {
   const audioContextRef = useRef(null);
   const destNodeRef = useRef(null);
   const animationFrameRef = useRef(null);
+  const updateTimeFrameRef = useRef(null);
   const recordedChunksRef = useRef([]);
   const streamRef = useRef(null);
   const mediaElementRef = useRef(null);
@@ -146,29 +147,38 @@ export const useVideoRecorder = (videoRef, audioRef) => {
         ctx.shadowOffsetY = 0;
       }
     }
-  }, [videoRef]);
-
-  const captureFrame = useCallback(() => {
-    drawFrame();
-    if (currentTimeRef.current < durationRef.current) {
-      animationFrameRef.current = requestAnimationFrame(captureFrame);
-    }
-  }, [drawFrame]);
+  }, [videoRef, audioRef]);
 
   const stopRecording = useCallback(() => {
     return new Promise((resolve) => {
-      if (
-        mediaRecorderRef.current &&
-        mediaRecorderRef.current.state !== 'inactive'
-      ) {
-        mediaRecorderRef.current.stop();
+      const recorder = mediaRecorderRef.current;
+      
+      if (!recorder || recorder.state === 'inactive') {
+        setIsRecording(false);
+        setRecordingProgress(0);
+        resolve(null);
+        return;
       }
 
-      setIsRecording(false);
-      setRecordingProgress(0);
+      recorder.onstop = () => {
+        const blob = new Blob(recordedChunksRef.current, {
+          type: 'video/webm;codecs=vp9',
+        });
+        
+        // Final State Cleanup
+        setIsRecording(false);
+        setRecordingProgress(0);
+        resolve(blob);
+      };
 
+      recorder.stop();
+
+      // Stop Visual Updates
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
+      }
+      if (updateTimeFrameRef.current) {
+        cancelAnimationFrame(updateTimeFrameRef.current);
       }
 
       // Cleanup tracks
@@ -183,28 +193,15 @@ export const useVideoRecorder = (videoRef, audioRef) => {
       ) {
         audioContextRef.current.close().catch(console.error);
       }
-
-      const checkInterval = setInterval(() => {
-        if (recordedChunksRef.current.length > 0) {
-          clearInterval(checkInterval);
-          const blob = new Blob(recordedChunksRef.current, {
-            type: 'video/webm;codecs=vp9',
-          });
-          resolve(blob);
-        }
-      }, 100);
-
-      // Force Resolve after 2 seconds safety timeout
-      setTimeout(() => {
-        clearInterval(checkInterval);
-        if (recordedChunksRef.current.length > 0) {
-          resolve(new Blob(recordedChunksRef.current, { type: 'video/webm' }));
-        } else {
-          resolve(null);
-        }
-      }, 2000);
     });
   }, []);
+
+  const captureFrame = useCallback(() => {
+    drawFrame();
+    if (currentTimeRef.current < durationRef.current) {
+      animationFrameRef.current = requestAnimationFrame(captureFrame);
+    }
+  }, [drawFrame]);
 
   const startRecording = useCallback(
     (capturesData, duration) => {
@@ -239,12 +236,13 @@ export const useVideoRecorder = (videoRef, audioRef) => {
           )();
           audioContextRef.current = audioContext;
 
+          // Note: createMediaElementSource can throw if already attached
           const source = audioContext.createMediaElementSource(mediaElement);
           const destNode = audioContext.createMediaStreamDestination();
           destNodeRef.current = destNode;
 
           source.connect(destNode);
-          source.connect(audioContext.destination); // Keep hearing while recording
+          source.connect(audioContext.destination);
 
           const audioTrack = destNode.stream.getAudioTracks()[0];
 
@@ -280,26 +278,26 @@ export const useVideoRecorder = (videoRef, audioRef) => {
           mediaRecorder.start(200);
           setIsRecording(true);
 
-          const updateTime = () => {
+          const updateProgress = () => {
             if (mediaElementRef.current) {
               currentTimeRef.current = mediaElementRef.current.currentTime;
               setRecordingProgress(
                 (currentTimeRef.current / durationRef.current) * 100,
               );
             }
-            if (isRecording && currentTimeRef.current < durationRef.current) {
-              animationFrameRef.current = requestAnimationFrame(updateTime);
+            if (currentTimeRef.current < durationRef.current) {
+              updateTimeFrameRef.current = requestAnimationFrame(updateProgress);
             }
           };
 
-          animationFrameRef.current = requestAnimationFrame(updateTime);
+          updateTimeFrameRef.current = requestAnimationFrame(updateProgress);
           animationFrameRef.current = requestAnimationFrame(captureFrame);
         } catch (error) {
           reject(error);
         }
       });
     },
-    [videoRef, audioRef, initCanvas, captureFrame, stopRecording, isRecording],
+    [videoRef, audioRef, initCanvas, captureFrame, stopRecording],
   );
 
   const downloadVideo = useCallback((blob, filename = 'lyrics-video.webm') => {

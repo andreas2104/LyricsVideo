@@ -8,12 +8,12 @@ const Media = ({
   currentTime,
   captures = [],
   isCaptioning,
+  mediaInfo,
   onVideoRecorded,
   onMediaLoaded,
 }) => {
   const [currentLyricIndex, setCurrentLyricIndex] = useState(-1);
   const [nextLyricIndex, setNextLyricIndex] = useState(-1);
-  const [exportProgress, setExportProgress] = useState(0);
   const [isExporting, setIsExporting] = useState(false);
   const [isFinalizing, setIsFinalizing] = useState(false);
   const [mediaUrl, setMediaUrl] = useState(null);
@@ -22,9 +22,6 @@ const Media = ({
   const [audioBackground, setAudioBackground] = useState(null);
 
   const visualChangeInterval = useRef(null);
-  const mediaRecorderRef = useRef(null);
-  const recordedChunksRef = useRef([]);
-  const recordedVideoRef = useRef(null);
   const containerRef = useRef(null);
   const urlInputRef = useRef(null);
   const videoRef = useRef(null);
@@ -268,8 +265,6 @@ const Media = ({
 
     setIsExporting(true);
     setIsFinalizing(false);
-    setExportProgress(0);
-
     try {
       const duration = mediaElement.duration || 0;
 
@@ -309,7 +304,6 @@ const Media = ({
     } finally {
       setIsExporting(false);
       setIsFinalizing(false);
-      setExportProgress(0);
     }
   };
 

@@ -50,6 +50,7 @@ function App() {
             currentTime={currentTime}
             captures={captures}
             isCaptioning={isCaptioning}
+            mediaInfo={mediaInfo}
             onMediaLoaded={setMediaInfo}
           />
         </div>
