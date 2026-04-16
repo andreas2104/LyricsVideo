@@ -2,6 +2,18 @@
 
 A powerful React application designed to synchronize lyrics with video and audio files. This tool allows users to easily create synchronized `.lrc` files by playing media and clicking to mark timestamps for each line of lyrics.
 
+## Rules
+
+- **Package Manager**: Use ONLY `pnpm`. Never use `npm` or `yarn`.
+- **Architecture**: All processing must be Client-Side (Browser-only). No backend storage or API for media files.
+- **Privacy**: No user media (video/audio) should be uploaded to any database.
+- **Tech Stack**: React 18+, Vite, TailwindCSS, Framer Motion.
+- **Video Processing**:
+    - Use the HTML5 `canvas` API for visual merging of lyrics and video.
+    - Use the `MediaRecorder` API for capturing the stream.
+    - If complex transcoding is needed, use `ffmpeg.wasm` with Multi-thread disabled (for browser compatibility).
+- **Code Style**: Functional components with Hooks. Use TypeScript for any new logic files.
+
 ## Features
 
 -   **Media Playback**: Supports local video/audio files and external URLs (including YouTube) via `react-player`.
@@ -13,12 +25,23 @@ A powerful React application designed to synchronize lyrics with video and audio
 
 ## Tech Stack
 
--   **Frontend**: React, Vite
+-   **Frontend**: React 18+, Vite
 -   **Styling**: TailwindCSS
 -   **Animations**: Framer Motion
 -   **Icons**: React Icons
 -   **Media Player**: React Player
 -   **Routing**: React Router DOM
+
+## Architecture Rules
+
+-   **Package Manager**: Use ONLY `pnpm`. Never use `npm` or `yarn`.
+-   **Processing**: All processing must be Client-Side (Browser-only). No backend storage or API for media files.
+-   **Privacy**: No user media (video/audio) should be uploaded to any database.
+-   **Video Processing**:
+    -   Use the HTML5 `canvas` API for visual merging of lyrics and video.
+    -   Use the `MediaRecorder` API for capturing the stream.
+    -   If complex transcoding is needed, use `ffmpeg.wasm` with Multi-thread disabled (for browser compatibility).
+-   **Code Style**: Functional components with Hooks. Use TypeScript for any new logic files.
 
 ## Installation
 
@@ -34,16 +57,12 @@ A powerful React application designed to synchronize lyrics with video and audio
 
 3.  Install dependencies:
     ```bash
-    npm install
-    # or
     pnpm install
-    # or
-    yarn install
     ```
 
 4.  Start the development server:
     ```bash
-    npm run dev
+    pnpm dev
     ```
 
 ## Usage
