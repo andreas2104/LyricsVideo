@@ -152,7 +152,7 @@ export const useVideoRecorder = (videoRef, audioRef) => {
   const stopRecording = useCallback(() => {
     return new Promise((resolve) => {
       const recorder = mediaRecorderRef.current;
-      
+
       if (!recorder || recorder.state === 'inactive') {
         setIsRecording(false);
         setRecordingProgress(0);
@@ -164,7 +164,7 @@ export const useVideoRecorder = (videoRef, audioRef) => {
         const blob = new Blob(recordedChunksRef.current, {
           type: 'video/webm;codecs=vp9',
         });
-        
+
         // Final State Cleanup
         setIsRecording(false);
         setRecordingProgress(0);
@@ -286,7 +286,8 @@ export const useVideoRecorder = (videoRef, audioRef) => {
               );
             }
             if (currentTimeRef.current < durationRef.current) {
-              updateTimeFrameRef.current = requestAnimationFrame(updateProgress);
+              updateTimeFrameRef.current =
+                requestAnimationFrame(updateProgress);
             }
           };
 
