@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
+import ReactPlayer from 'react-player';
 import './index.css';
-import { useVideoRecorder } from '../../hooks/useVideoRecorder';
 import { generateAudioBackground, isAudioFile } from '../../utils/visualizer';
+import { useVideoRecorder } from '../../hooks/useVideoRecorder';
 
 const Media = ({
   onTimeUpdate,
@@ -26,7 +27,12 @@ const Media = ({
   const urlInputRef = useRef(null);
   const videoRef = useRef(null);
   const audioRef = useRef(null);
+  const playerRef = useRef(null);
   const prevIsCaptioningRef = useRef(isCaptioning);
+
+  const canPlayUrl = (url) => {
+    return url && ReactPlayer.canPlay(url);
+  };
 
   const {
     isRecording,
@@ -128,21 +134,39 @@ const Media = ({
     const url = urlInputRef.current.value.trim();
     if (url) {
       setMediaUrl(url);
-      // Déterminer le type basé sur l'extension
-      if (isAudioFile(url)) {
+
+      const isExternalPlayer = canPlayUrl(url);
+      const isAudio = isAudioFile(url);
+
+      // Déterminer le type
+      if (isAudio) {
         setMediaType('audio');
       } else {
         setMediaType('video');
       }
 
-      // Passer les infos du média au parent (sans fichier pour les URLs)
+      // Passer les infos du média au parent
       if (onMediaLoaded) {
-        const filename = url.split('/').pop().split('?')[0] || 'media';
+        let filename = 'media';
+        try {
+          // Extraire un nom plus propre de l'URL
+          const urlObj = new URL(url);
+          filename =
+            urlObj.pathname.split('/').pop() ||
+            urlObj.hostname.replace('www.', '');
+          if (urlObj.searchParams.has('v')) {
+            filename = urlObj.searchParams.get('v');
+          }
+        } catch (e) {
+          filename = url.split('/').pop().split('?')[0] || 'media';
+        }
+
         onMediaLoaded({
           url: url,
-          type: isAudioFile(url) ? 'audio' : 'video',
+          type: isAudio ? 'audio' : 'video',
           filename: filename,
           file: null,
+          isExternal: isExternalPlayer,
         });
       }
     }
@@ -407,7 +431,35 @@ const Media = ({
               </button>
             )}
 
-            {mediaType === 'video' ? (
+            {mediaUrl && canPlayUrl(mediaUrl) ? (
+              <div className="player-wrapper">
+                <ReactPlayer
+                  key={mediaUrl}
+                  ref={playerRef}
+                  url={mediaUrl}
+                  width="100%"
+                  height="100%"
+                  controls
+                  playing
+                  config={{
+                    youtube: {
+                      playerVars: { modestbranding: 1 },
+                    },
+                  }}
+                  onProgress={(progress) => {
+                    if (onTimeUpdate && typeof progress.playedSeconds === 'number') {
+                      onTimeUpdate(progress.playedSeconds);
+                    }
+                  }}
+                  style={{
+                    position: isFullscreen ? 'fixed' : 'absolute',
+                    top: isFullscreen ? 0 : 0,
+                    left: isFullscreen ? 0 : 0,
+                    zIndex: isFullscreen ? 100 : 1,
+                  }}
+                />
+              </div>
+            ) : mediaType === 'video' ? (
               <video
                 key={mediaUrl}
                 src={mediaUrl}
